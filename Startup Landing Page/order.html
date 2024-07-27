@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Page</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(254, 251, 250);
+        }
+
+        .navbar {
+            background-color: #333;
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: #fff;
+        }
+
+        .navbar-brand:hover,
+        .nav-link:hover {
+            color: #ffd700;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .order-summary {
+            margin-bottom: 30px;
+        }
+
+        .order-summary h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .order-summary .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: none;
+            padding: 15px 20px;
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .order-summary .list-group-item:nth-child(even) {
+            background: #ececec;
+        }
+
+        .order-summary .list-group-item strong {
+            font-size: 18px;
+        }
+
+        .order-summary .list-group-item span {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .total-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: #007bff;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .total-price h3 {
+            font-size: 22px;
+            margin: 0;
+        }
+
+        .btn-primary {
+            background-color: #28a745;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="index.html">Walk-With-US</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="products.html">Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="about.html">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gallery.html">Gallery</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="contact.html">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="order.html">Order</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="order-summary">
+            <h1 class="mb-4">Order Summary</h1>
+            <div id="cartItems" class="list-group mb-4">
+                <!-- Cart items will be dynamically added here -->
+            </div>
+            <div class="total-price">
+                <h3>Total: ₹<span id="totalPrice">0</span></h3>
+                <button class="btn btn-primary" id="checkoutButton">Buy</button>
+            </div>
+        </div>
+    </div>
+    
+
+    <footer>
+        <p>&copy; 2024 Walk-With-US. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Get cart data from localStorage
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // Update order summary on page load
+        updateOrderSummary();
+
+        // Function to handle checkout button click
+        document.getElementById('checkoutButton').addEventListener('click', () => {
+            alert('Your order has been placed successfully!');
+            window.location.href = 'index.html';
+        });
+
+        function updateOrderSummary() {
+    const cartItemsContainer = document.getElementById('cartItems');
+    const totalPriceElement = document.getElementById('totalPrice');
+    cartItemsContainer.innerHTML = '';
+    let totalPrice = 0;
+
+    cart.forEach(item => {
+        const cartItemElement = document.createElement('div');
+        cartItemElement.classList.add('list-group-item');
+        cartItemElement.innerHTML = `
+            <strong>${item.name}</strong>
+            <input type="number" min="1" value="${item.quantity}" class="quantity-input" data-name="${item.name}">
+            <span>₹${item.price}</span>
+            <button class="btn btn-danger btn-sm delete-btn" data-name="${item.name}">Delete</button>`;
+        cartItemsContainer.appendChild(cartItemElement);
+        totalPrice += parseInt(item.price, 10) * item.quantity;
+    });
+
+    totalPriceElement.textContent = totalPrice;
+
+    // Add event listeners to quantity inputs
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', (event) => {
+            const itemName = event.target.getAttribute('data-name');
+            const newQuantity = parseInt(event.target.value, 10);
+            updateCartItemQuantity(itemName, newQuantity);
+            updateOrderSummary();
+        });
+    });
+
+    // Add event listeners to delete buttons
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const itemName = event.target.getAttribute('data-name');
+            deleteCartItem(itemName);
+            updateOrderSummary();
+        });
+    });
+}
+
+function updateCartItemQuantity(name, quantity) {
+    const cartItem = cart.find(item => item.name === name);
+    if (cartItem) {
+        cartItem.quantity = quantity;
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }
+}
+
+function deleteCartItem(name) {
+    const cartIndex = cart.findIndex(item => item.name === name);
+    if (cartIndex !== -1) {
+        cart.splice(cartIndex, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }
+}
+
+
+
+    </script>
+</body>
+
+</html>
